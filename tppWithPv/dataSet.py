@@ -53,7 +53,14 @@ class TestPvDataSet():
     _uniqueInstance = None
 
     def __init__(self):
+        
+        dataRaw = self.readDataRaw() # (nSample, nPv)
+        
+        data = (dataRaw - np.nanmean(dataRaw, axis=0))/np.nanstd(dataRaw, axis=0) # (*, Npv)
+        
+        self.data = data # (Nsample, Npv)
 
+    def readDataRaw(self):
         
         with open("dataPv.csv") as fp:
             txt = fp.read()
@@ -66,14 +73,11 @@ class TestPvDataSet():
                 cells = line.rstrip().split(",") # each cells contain 0 or 1, which represent the occurrence of a relative event.
                 dataRaw.append([float(cell) for cell in cells])
         dataRaw = np.array(dataRaw, dtype=np.float32) # (*, Npv)
-        
-        data = (dataRaw - np.nanmean(dataRaw, axis=0))/np.nanstd(dataRaw, axis=0) # (*, Npv)
-        
-        (Nsample, Npv) = data.shape
+
+        (Nsample, Npv) = dataRaw.shape
         print("A data set with the dimension (Nsample=%d, Npv=%d) has been loaded, successfully." % (Nsample, Npv))
-
-        self.data = data # (Nsample, Npv)
-
+        
+        return dataRaw # (nSample, nPv)
 
     @classmethod
     def getInstance(cls, Npv):
@@ -96,3 +100,41 @@ class TestPvDataSet():
     def getAvailableIndex(self):
         idxAvailable = np.where(~np.any(np.isnan(self.data), axis=1))[0] # (*,)
         return idxAvailable
+
+
+class TestPvDataSetWithDifferential(TestPvDataSet):
+    
+    def __init__(self, tau):
+        super(TestPvDataSetWithDifferential, self).__init__()
+        
+        dataRaw = self.readDataRaw() # (nSample, nTag)
+        
+        dataRawDiff = TestPvDataSetWithDifferential.makeDifferential(dataRaw, tau) # (nSample, nTag)
+        
+        dataDiff = (dataRawDiff - np.nanmean(dataRawDiff, axis=0))/np.nanstd(dataRawDiff, axis=0) # (nSample, nTag)
+        
+        absDataDiff = np.abs(dataDiff) # (nSample, nTag)
+        
+        self.data = absDataDiff # (nSample, nTag)
+        
+        
+    @classmethod
+    def makeDifferential(cls, data, tau):
+        # data: (nSample, nTag)
+        # tau: integer, tau > 0
+        nSample, nTag = data.shape
+        dataDiff = np.zeros((nSample, nTag)) # (nSample, nTag)
+        dataDiff[:tau-1,:] = np.nan # (tau-1, nTag)
+        
+        t = np.linspace(-0.5,0.5,tau).reshape(-1,1) # (tau,1)
+        tt = np.sum(t*t) # (,)
+        for i in range(tau-1, nSample):
+            xx = data[i-(tau-1):(i+1), : ] # (tau, nTag)
+            xx -= np.nanmean(xx, axis=0) # (tau, nTag)
+            diff = np.sum(t * xx, axis=0)/tt # (nTag,)
+            dataDiff[i,:] = diff
+        
+        return dataDiff # (nSample, nTag)
+    
+    
+    
