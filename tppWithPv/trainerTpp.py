@@ -4,10 +4,10 @@ import sys
 
 import torch
 
-from agentTpp import AgentHawkesWithPv
-from environmentTpp import EventDataFeederWithPv
 from factory import TrainerFactory
 import numpy as np
+from tppWithPv.agentTpp import AgentHawkesWithPv
+from tppWithPv.environmentTpp import EventDataFeederWithPv
 from trainer import ITrainer
 
 

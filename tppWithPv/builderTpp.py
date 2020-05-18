@@ -1,15 +1,17 @@
 
+import itertools
 import sys
+
+from adapter import EnvironmentAdapter, AgentAdapter, TrainerAdapter
+from builder import Builder
+from tppWithPv.agentTpp import AgentFactoryTpp
+from tppWithPv.environmentTpp import EnvironmentFactoryTpp
+from tppWithPv.trainerTpp import TrainerFactoryTpp
+from tppWithPv.dataSet import TestEventDataSet, TestPvDataSet
+
 sys.path.append('../framework')
 
-import itertools
 
-from adapter import AgentAdapter, EnvironmentAdapter, TrainerAdapter
-from agentTpp import AgentFactoryTpp
-from builder import Builder
-from environmentTpp import EnvironmentFactoryTpp
-from history import History
-from trainerTpp import TrainerFactoryTpp
 
 
 class BuilderTpp(Builder):
@@ -37,14 +39,13 @@ class BuilderTpp(Builder):
             for arg in itr:
                 yield arg
 
-        Ndelta = 5
-        Npv = 3
+        Ndelta = TestEventDataSet.getInstance().getNdelta()
+        Npv = TestPvDataSet.getInstance().getNpv()
 
         for agentType, environmentType, trainerType, Nh, Nbatch, Nseq, Nepoch \
             in genParameter():
 
-            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq, 
-                Npv = Npv, Ndelta = Ndelta)
+            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq)
             environment = EnvironmentFactoryTpp().create(environmentType, 
                 constructorParameter)
             environmentAdapter = EnvironmentAdapter(environment)

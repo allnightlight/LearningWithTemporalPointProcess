@@ -80,7 +80,7 @@ class TestPvDataSet():
         return dataRaw # (nSample, nPv)
 
     @classmethod
-    def getInstance(cls, Npv):
+    def getInstance(cls):
         
         if cls._uniqueInstance is None:
             cls._uniqueInstance = super().__new__(cls)
