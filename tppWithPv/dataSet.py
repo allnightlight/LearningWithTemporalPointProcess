@@ -4,49 +4,40 @@ import numpy as np
 
 class TestEventDataSet():
 
-    _uniqueInstance = {}
+    _uniqueInstance = None
 
-    def __init__(self, Ndelta):
+    def __init__(self):
+        
+        
+        with open("dataDelta.csv") as fp:
+            txt = fp.read()
 
-        self.randomState = np.random.RandomState(seed = 1)
+        dataRaw = []
+        
+        # the first line is supposed to be the header line.
+        for line in txt.split("\n")[1:]:
+            if len(line.rstrip()) > 0:
+                cells = line.rstrip().split(",") # each cells contain 0 or 1, which represent the occurrence of a relative event.
+                dataRaw.append([float(cell) for cell in cells])
+        dataRaw = np.array(dataRaw, dtype=np.float32) # (*, Ndelta)
+        
+        (Nsample, Ndelta) = dataRaw.shape
+        print("A data set with the dimension (Nsample=%d, Ndelta=%d) has been loaded, successfully." % (Nsample, Ndelta))
 
-        N = 2**10
-
-        Ninterval = 2**3
-        Nmutual = 2**1
-        self.data = np.zeros((N, Ndelta)) # (N, Ndelta)
-
-        flag = 0
-        cnt = 0
-        for k1 in range(N):
-
-            if k1 % Ninterval == Ninterval - 1:
-                self.data[k1,:] = 1.
-                flag = 1
-                cnt = 0
-
-            if (cnt > 0) & (flag == 1):
-                self.data[k1,:] = self.randomState.rand() < 1/Nmutual
-
-            if flag == 1 & (cnt < Nmutual):
-                cnt += 1
-            elif cnt == Nmutual:
-                flag = 0
-                cnt = 0
-
-        self.data = self.data.astype(np.float32) 
-        self.data[N//2,0] = np.nan
-        # (N, Ndelta)
+        self.data = dataRaw # (Nsample, Ndelta)
 
     @classmethod
-    def getInstance(cls, Ndelta):
-        if not Ndelta in cls._uniqueInstance:
-            cls._uniqueInstance[Ndelta] = super().__new__(cls)
-            cls._uniqueInstance[Ndelta].__init__(Ndelta)
-        return cls._uniqueInstance[Ndelta]
+    def getInstance(cls):
+        if cls._uniqueInstance is None:
+            cls._uniqueInstance = super().__new__(cls)
+            cls._uniqueInstance.__init__()
+        return cls._uniqueInstance
 
     def getNsample(self):
         return self.data.shape[0]
+    
+    def getNdelta(self):
+        return self.data.shape[1]
 
     def getSlice(self, idx):
 # idx: (...)
