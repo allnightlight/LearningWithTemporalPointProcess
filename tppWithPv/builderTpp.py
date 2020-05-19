@@ -1,6 +1,5 @@
 
 import itertools
-import sys
 
 from adapter import EnvironmentAdapter, AgentAdapter, TrainerAdapter
 from builder import Builder
@@ -8,10 +7,6 @@ from tppWithPv.agentTpp import AgentFactoryTpp
 from tppWithPv.environmentTpp import EnvironmentFactoryTpp
 from tppWithPv.trainerTpp import TrainerFactoryTpp
 from tppWithPv.dataSet import TestEventDataSet, TestPvDataSet
-
-sys.path.append('../framework')
-
-
 
 
 class BuilderTpp(Builder):
