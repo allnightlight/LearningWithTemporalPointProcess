@@ -3,6 +3,8 @@ Created on 2020/05/18
 
 @author: ukai
 '''
+import os
+import shutil
 import unittest
 import numpy as np
 from tppWithPv.dataSet import TestEventDataSet, TestPvDataSet,\
@@ -11,38 +13,47 @@ from tppWithPv.dataSet import TestEventDataSet, TestPvDataSet,\
 
 class Test(unittest.TestCase):
     
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists('./testData'):
+            os.mkdir('testData')
+    
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists('./testData'):
+            shutil.rmtree("./testData")
+
 
     def test001(self):
         
-        for _ in range(2**7):
+        for k1 in range(2**7):
             nSample, nDelta = np.random.randint(1, 2**5, size=(2,))
             dataRaw = np.random.randint(2, size=(nSample, nDelta))
-            filePath = "./dataDelta.csv"
+            filePath = "./testData/dataDelta%d.csv" % k1
             with open(filePath, "w") as fp:
                 fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
-            ds = TestEventDataSet(filePath)
-            
-            assert ds.getNdelta() == nDelta
-            assert ds.getNsample() == nSample
+            for ds in [TestEventDataSet(filePath), TestEventDataSet.getInstance(filePath),]:            
+                assert ds.getNdelta() == nDelta
+                assert ds.getNsample() == nSample
         
     def test002(self):
 
-        for _ in range(2**7):        
+        for k1 in range(2**7):        
             nSample, nPv = np.random.randint(2, 2**5, size=(2,))
             dataRaw = np.random.randn(nSample, nPv)
-            filePath = "./dataPv.csv"
+            filePath = "./testData/dataPv%d.csv" % k1
             with open(filePath, "w") as fp:
                 fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
-            ds = TestPvDataSet(filePath)
+            for ds in [TestPvDataSet(filePath), TestPvDataSet.getInstance(filePath),]:
             
-            assert ds.getNpv() == nPv
-            assert ds.getNsample() == nSample
+                assert ds.getNpv() == nPv
+                assert ds.getNsample() == nSample
             
             
     
@@ -72,20 +83,21 @@ class Test(unittest.TestCase):
     
     def test004(self):
 
-        for _ in range(2**7):
+        for k1 in range(2**7):
             tau = 2      
             nSample, nPv = np.random.randint(3, 2**5, size=(2,))
             dataRaw = np.random.randn(nSample, nPv)
-            filePath = "./dataPv.csv"
+            filePath = "./testData/dataPvWithDiff%d.csv" % k1
             with open(filePath, "w") as fp:
                 fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
+
+            for ds in [TestPvDataSetWithDifferential(filePath, tau), TestPvDataSetWithDifferential.getInstance(filePath, tau=tau),]:
             
-            ds = TestPvDataSetWithDifferential(filePath, tau)
-            
-            assert ds.getNpv() == nPv
-            assert ds.getNsample() == nSample
+                assert ds.getNpv() == nPv
+                assert ds.getNsample() == nSample
+
 
 
 if __name__ == "__main__":
