@@ -27,7 +27,7 @@ def parseFromJson(dataJson):
     data = json.loads(dataJson, object_hook = json_date_hook)
     return data
 
-def drawColorMapOfEventProb(F, B, myXticklabel, myYticklabel, myTitle):
+def drawColorMapOfEventProb(F, B, myXticklabel, myYticklabel, myTitle, cmap):
 
     Nx, Ny = F.shape
     assert F.shape == B.shape
@@ -47,9 +47,10 @@ def drawColorMapOfEventProb(F, B, myXticklabel, myYticklabel, myTitle):
             cnt += 1
 
     fig = plt.gcf()
-    ax = fig.add_subplot()
+    #ax = fig.add_subplot()
+    ax = fig.gca()
 
-    ax.pcolor(B.T, cmap="Reds")
+    ax.pcolor(B.T, cmap=cmap)
     ax.scatter(X, Y, s=S*120, marker="s", facecolor='red', edgecolor='white')
 
     ax.set_xticks(np.arange(0, Nx) + 0.5)
