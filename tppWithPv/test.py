@@ -1,4 +1,5 @@
 
+import os
 import unittest
 
 import torch 
@@ -16,6 +17,10 @@ class TestCase(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
+        
+        if not os.path.exists('./tmp'):
+            os.mkdir("./tmp")
+        
         nSample = 2**10
         nDelta, nPv = np.random.randint(1, 2**2, size=(2,))
         dataRaw = np.random.randint(2, size=(nSample, nDelta))

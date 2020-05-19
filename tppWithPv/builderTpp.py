@@ -26,13 +26,14 @@ class BuilderTpp(Builder):
             Nbatch  = (2**6,)
             Nepoch  = (2**0,)
             Nseq    = (2**5,)
+            preprocess = ('None', 'Differential',)
 
             agentType = ('AgentHawkesWithPv',)
             environmentType = ('EventDataFeederWithPv',)
             trainerType = ('TrainerTppMLE',)
 
             itr = itertools.product(agentType, environmentType, trainerType, 
-                Nh, Nbatch, Nseq, Nepoch)
+                Nh, Nbatch, Nseq, Nepoch, preprocess)
             itr = itertools.cycle(itr)
             itr = itertools.islice(itr, 3)
 
@@ -42,10 +43,10 @@ class BuilderTpp(Builder):
         Ndelta = TestEventDataSet.getInstance().getNdelta()
         Npv = TestPvDataSet.getInstance().getNpv()
 
-        for agentType, environmentType, trainerType, Nh, Nbatch, Nseq, Nepoch \
+        for agentType, environmentType, trainerType, Nh, Nbatch, Nseq, Nepoch, preprocess\
             in genParameter():
 
-            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq)
+            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq, preprocess = preprocess)
             environment = EnvironmentFactoryTpp().create(environmentType, 
                 constructorParameter)
             environmentAdapter = EnvironmentAdapter(environment)

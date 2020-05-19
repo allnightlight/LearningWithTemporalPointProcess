@@ -3,7 +3,8 @@
 from environment import IEnvironment
 from factory import EnvironmentFactory
 import numpy as np
-from tppWithPv.dataSet import TestPvDataSet, TestEventDataSet
+from tppWithPv.dataSet import TestPvDataSet, TestEventDataSet,\
+    TestPvDataSetWithDifferential
 
 
 class EnvironmentFactoryTpp(EnvironmentFactory):
@@ -14,12 +15,15 @@ class EnvironmentFactoryTpp(EnvironmentFactory):
 
 class EventDataFeederWithPv(IEnvironment):
 
-    def __init__(self, Nbatch, Nseq):
+    def __init__(self, Nbatch, Nseq, preprocess = "None"):
         super().__init__()
+        pvDataSet = None
+        if preprocess == "None":
+            pvDataSet = TestPvDataSet.getInstance()
+        if preprocess == "Differential":
+            pvDataSet = TestPvDataSetWithDifferential.getInstance()
 
-        pvDataSet = TestPvDataSet.getInstance()
         eventDataSet = TestEventDataSet.getInstance()
-
         self.eventDataSet = eventDataSet
         self.pvDataSet    = pvDataSet
         self.Nbatch = Nbatch
