@@ -23,7 +23,7 @@ class Test(unittest.TestCase):
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
-            ds = TestEventDataSet()
+            ds = TestEventDataSet(filePath)
             
             assert ds.getNdelta() == nDelta
             assert ds.getNsample() == nSample
@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
-            ds = TestPvDataSet()
+            ds = TestPvDataSet(filePath)
             
             assert ds.getNpv() == nPv
             assert ds.getNsample() == nSample
@@ -82,7 +82,7 @@ class Test(unittest.TestCase):
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
-            ds = TestPvDataSetWithDifferential(tau)
+            ds = TestPvDataSetWithDifferential(filePath, tau)
             
             assert ds.getNpv() == nPv
             assert ds.getNsample() == nSample

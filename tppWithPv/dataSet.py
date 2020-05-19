@@ -4,12 +4,12 @@ import numpy as np
 
 class TestEventDataSet():
 
-    _uniqueInstance = None
+    _uniqueInstance = {}
 
-    def __init__(self):
+    def __init__(self, dataFilePath):
         
         
-        with open("dataDelta.csv") as fp:
+        with open(dataFilePath) as fp:
             txt = fp.read()
 
         dataRaw = []
@@ -27,11 +27,11 @@ class TestEventDataSet():
         self.data = dataRaw # (Nsample, Ndelta)
 
     @classmethod
-    def getInstance(cls):
-        if cls._uniqueInstance is None:
-            cls._uniqueInstance = super().__new__(cls)
-            cls._uniqueInstance.__init__()
-        return cls._uniqueInstance
+    def getInstance(cls, dataFilePath):
+        if not dataFilePath in cls._uniqueInstance:
+            cls._uniqueInstance[dataFilePath] = super().__new__(cls)
+            cls._uniqueInstance[dataFilePath].__init__()
+        return cls._uniqueInstance[dataFilePath]
 
     def getNsample(self):
         return self.data.shape[0]
@@ -50,19 +50,19 @@ class TestEventDataSet():
 
 class TestPvDataSet():
 
-    _uniqueInstance = None
+    _uniqueInstance = {}
 
-    def __init__(self):
+    def __init__(self, dataFilePath):
         
-        dataRaw = self.readDataRaw() # (nSample, nPv)
+        dataRaw = self.readDataRaw(dataFilePath) # (nSample, nPv)
         
         data = (dataRaw - np.nanmean(dataRaw, axis=0))/np.nanstd(dataRaw, axis=0) # (*, Npv)
         
         self.data = data # (Nsample, Npv)
 
-    def readDataRaw(self):
+    def readDataRaw(self, dataFilePath):
         
-        with open("dataPv.csv") as fp:
+        with open(dataFilePath) as fp:
             txt = fp.read()
 
         dataRaw = []
@@ -80,12 +80,11 @@ class TestPvDataSet():
         return dataRaw # (nSample, nPv)
 
     @classmethod
-    def getInstance(cls):
-        
-        if cls._uniqueInstance is None:
-            cls._uniqueInstance = super().__new__(cls)
-            cls._uniqueInstance.__init__()
-        return cls._uniqueInstance
+    def getInstance(cls, dataFilePath):
+        if not dataFilePath in cls._uniqueInstance:
+            cls._uniqueInstance[dataFilePath] = super().__new__(cls)
+            cls._uniqueInstance[dataFilePath].__init__()
+        return cls._uniqueInstance[dataFilePath]
 
     def getNsample(self):
         return self.data.shape[0]
@@ -104,10 +103,10 @@ class TestPvDataSet():
 
 class TestPvDataSetWithDifferential(TestPvDataSet):
     
-    def __init__(self, tau):
-        super(TestPvDataSetWithDifferential, self).__init__()
+    def __init__(self, dataFilePath, tau):
+        super(TestPvDataSetWithDifferential, self).__init__(dataFilePath)
         
-        dataRaw = self.readDataRaw() # (nSample, nTag)
+        dataRaw = self.readDataRaw(dataFilePath) # (nSample, nTag)
         
         dataRawDiff = TestPvDataSetWithDifferential.makeDifferential(dataRaw, tau) # (nSample, nTag)
         
