@@ -14,8 +14,7 @@ class TestEventDataSet():
 
         dataRaw = []
         
-        # the first line is supposed to be the header line.
-        for line in txt.split("\n")[1:]:
+        for line in txt.split("\n"):
             if len(line.rstrip()) > 0:
                 cells = line.rstrip().split(",") # each cells contain 0 or 1, which represent the occurrence of a relative event.
                 dataRaw.append([float(cell) for cell in cells])
@@ -67,8 +66,7 @@ class TestPvDataSet():
 
         dataRaw = []
         
-        # the first line is supposed to be the header line.
-        for line in txt.split("\n")[1:]:
+        for line in txt.split("\n"):
             if len(line.rstrip()) > 0:
                 cells = line.rstrip().split(",") # each cells contain 0 or 1, which represent the occurrence of a relative event.
                 dataRaw.append([float(cell) for cell in cells])

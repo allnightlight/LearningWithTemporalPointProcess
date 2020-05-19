@@ -31,7 +31,6 @@ class Test(unittest.TestCase):
             dataRaw = np.random.randint(2, size=(nSample, nDelta))
             filePath = "./testData/dataDelta%d.csv" % k1
             with open(filePath, "w") as fp:
-                fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
@@ -46,7 +45,6 @@ class Test(unittest.TestCase):
             dataRaw = np.random.randn(nSample, nPv)
             filePath = "./testData/dataPv%d.csv" % k1
             with open(filePath, "w") as fp:
-                fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
             
@@ -89,7 +87,6 @@ class Test(unittest.TestCase):
             dataRaw = np.random.randn(nSample, nPv)
             filePath = "./testData/dataPvWithDiff%d.csv" % k1
             with open(filePath, "w") as fp:
-                fp.write("#\n")
                 for row in dataRaw:                
                     fp.write(",".join([str(cell) for cell in row]) + "\n")
 

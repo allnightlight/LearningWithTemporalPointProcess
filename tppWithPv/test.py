@@ -27,14 +27,12 @@ class TestCase(unittest.TestCase):
         dataRaw = np.random.randint(2, size=(nSample, nDelta))
         eventDataFilePath = "./tmp/dataDelta.csv"
         with open(eventDataFilePath, "w") as fp:
-            fp.write("#\n")
             for row in dataRaw:                
                 fp.write(",".join([str(cell) for cell in row]) + "\n")
                 
         dataRaw = np.random.randn(nSample, nPv)
         pvDataFilePath = "./tmp/dataPv.csv"
         with open(pvDataFilePath, "w") as fp:
-            fp.write("#\n")
             for row in dataRaw:                
                 fp.write(",".join([str(cell) for cell in row]) + "\n")
                 
