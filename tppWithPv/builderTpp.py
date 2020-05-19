@@ -10,6 +10,9 @@ from tppWithPv.dataSet import TestEventDataSet, TestPvDataSet
 
 
 class BuilderTpp(Builder):
+    
+    eventDataFilePath = "./tmp/dataDelta.csv"
+    pvDataFilePath = "./tmp/dataPv.csv"
 
     def __init__(self, history):
         super().__init__(history)
@@ -22,26 +25,27 @@ class BuilderTpp(Builder):
             Nepoch  = (2**0,)
             Nseq    = (2**5,)
             preprocess = ('None', 'Differential',)
+            tau = (2**2,)
 
             agentType = ('AgentHawkesWithPv',)
             environmentType = ('EventDataFeederWithPv',)
             trainerType = ('TrainerTppMLE',)
 
             itr = itertools.product(agentType, environmentType, trainerType, 
-                Nh, Nbatch, Nseq, Nepoch, preprocess)
+                Nh, Nbatch, Nseq, Nepoch, preprocess, tau)
             itr = itertools.cycle(itr)
             itr = itertools.islice(itr, 3)
 
             for arg in itr:
                 yield arg
 
-        Ndelta = TestEventDataSet.getInstance().getNdelta()
-        Npv = TestPvDataSet.getInstance().getNpv()
+        Ndelta = TestEventDataSet.getInstance(BuilderTpp.eventDataFilePath).getNdelta()
+        Npv = TestPvDataSet.getInstance(BuilderTpp.pvDataFilePath).getNpv()
 
-        for agentType, environmentType, trainerType, Nh, Nbatch, Nseq, Nepoch, preprocess\
+        for agentType, environmentType, trainerType, Nh, Nbatch, Nseq, Nepoch, preprocess, tau\
             in genParameter():
 
-            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq, preprocess = preprocess)
+            constructorParameter = dict(Nbatch = Nbatch, Nseq = Nseq, preprocess = preprocess, tau = tau, eventDataFilePath = BuilderTpp.eventDataFilePath, pvDataFilePath = BuilderTpp.pvDataFilePath)
             environment = EnvironmentFactoryTpp().create(environmentType, 
                 constructorParameter)
             environmentAdapter = EnvironmentAdapter(environment)
