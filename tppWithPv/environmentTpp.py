@@ -15,15 +15,15 @@ class EnvironmentFactoryTpp(EnvironmentFactory):
 
 class EventDataFeederWithPv(IEnvironment):
 
-    def __init__(self, Nbatch, Nseq, preprocess = "None"):
+    def __init__(self, eventDataFilePath, pvDataFilePath, Nbatch, Nseq, preprocess = "None", tau = None):
         super().__init__()
         pvDataSet = None
         if preprocess == "None":
-            pvDataSet = TestPvDataSet.getInstance()
+            pvDataSet = TestPvDataSet.getInstance(pvDataFilePath)
         if preprocess == "Differential":
-            pvDataSet = TestPvDataSetWithDifferential.getInstance()
+            pvDataSet = TestPvDataSetWithDifferential.getInstance(pvDataFilePath, tau = tau)
 
-        eventDataSet = TestEventDataSet.getInstance()
+        eventDataSet = TestEventDataSet.getInstance(eventDataFilePath)
         self.eventDataSet = eventDataSet
         self.pvDataSet    = pvDataSet
         self.Nbatch = Nbatch
