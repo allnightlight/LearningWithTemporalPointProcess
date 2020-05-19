@@ -30,7 +30,7 @@ class TestEventDataSet():
     def getInstance(cls, dataFilePath):
         if not dataFilePath in cls._uniqueInstance:
             cls._uniqueInstance[dataFilePath] = super().__new__(cls)
-            cls._uniqueInstance[dataFilePath].__init__()
+            cls._uniqueInstance[dataFilePath].__init__(dataFilePath)
         return cls._uniqueInstance[dataFilePath]
 
     def getNsample(self):
@@ -80,10 +80,10 @@ class TestPvDataSet():
         return dataRaw # (nSample, nPv)
 
     @classmethod
-    def getInstance(cls, dataFilePath):
+    def getInstance(cls, dataFilePath, **args):
         if not dataFilePath in cls._uniqueInstance:
             cls._uniqueInstance[dataFilePath] = super().__new__(cls)
-            cls._uniqueInstance[dataFilePath].__init__()
+            cls._uniqueInstance[dataFilePath].__init__(dataFilePath, **args)
         return cls._uniqueInstance[dataFilePath]
 
     def getNsample(self):
