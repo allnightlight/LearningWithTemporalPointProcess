@@ -23,7 +23,7 @@ class TestEventDataSet():
         (Nsample, Ndelta) = dataRaw.shape
         print("A data set with the dimension (Nsample=%d, Ndelta=%d) has been loaded, successfully." % (Nsample, Ndelta))
 
-        self.data = dataRaw # (Nsample, Ndelta)
+        self.data = dataRaw.astype(np.float32) # (Nsample, Ndelta)
 
     @classmethod
     def getInstance(cls, dataFilePath):
@@ -57,7 +57,7 @@ class TestPvDataSet():
         
         data = (dataRaw - np.nanmean(dataRaw, axis=0))/np.nanstd(dataRaw, axis=0) # (*, Npv)
         
-        self.data = data # (Nsample, Npv)
+        self.data = data.astype(np.float32) # (Nsample, Npv)
 
     def readDataRaw(self, dataFilePath):
         
@@ -112,7 +112,7 @@ class TestPvDataSetWithDifferential(TestPvDataSet):
         
         absDataDiff = np.abs(dataDiff) # (nSample, nTag)
         
-        self.data = absDataDiff # (nSample, nTag)
+        self.data = absDataDiff.astype(np.float32) # (nSample, nTag)
         
         
     @classmethod
