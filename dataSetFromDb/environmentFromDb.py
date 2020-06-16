@@ -60,7 +60,7 @@ Select
         all_tags = list(ev_tags) + list(pv_tags_all)
         self.ev_idx = [k1 for k1 in range(len(ev_tags))]
         self.pv_idx = [k1 + len(ev_tags) for k1 in range(len(pv_tags_all))]
-        self.dataSet = DataSetFromDb(dbFilePath, all_tags, period)
+        self.dataSet = DataSetFromDb.getInstance(dbFilePath=dbFilePath , tags=all_tags, period=period)
         self.Nbatch = Nbatch
         self.Nseq = Nseq
         
