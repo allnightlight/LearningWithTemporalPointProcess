@@ -38,10 +38,10 @@ class TrainerMLE(ITrainer):
                 E, Pv = self.environment.getBatchData(idx) # (Nseq, *, Ndelta)
                 _E = torch.tensor(E.astype(np.float32)) # (Nseq, *, Ndelta)
                 _Pv = torch.tensor(Pv.astype(np.float32)) # (Nseq, *, nPv)
-                _, _Yhat = self.agent(_E, _Pv) # (Nseq+1, *, Ndelta)
+                _, _Yhat = self.agent(_E[:-1,...], _Pv[1:,...]) # (Nseq, *, Ndelta)
                 
-                _box1 = -1. * torch.sum((1. - _E) * _Yhat[:-1,:], axis=-1) # (Nseq, *)
-                _box2 = torch.sum(torch.nn.functional.logsigmoid(_Yhat[:-1,:]), axis=-1) # (Nseq, *)
+                _box1 = -1. * torch.sum((1. - _E) * _Yhat, axis=-1) # (Nseq, *)
+                _box2 = torch.sum(torch.nn.functional.logsigmoid(_Yhat), axis=-1) # (Nseq, *)
                 _LL = torch.mean(_box1 + _box2) # (,)
                 
                 _loss = -1. * _LL
