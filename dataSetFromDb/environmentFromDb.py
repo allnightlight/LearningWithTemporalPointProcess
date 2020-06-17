@@ -16,7 +16,7 @@ class EnvironmentFactoryFromDb(EnvironmentFactory):
 
 class DataFeederFromDb(IEnvironment):
 
-    def __init__(self, dbFilePath, period, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq):
+    def __init__(self, dbFilePath, period, samplingIntervalMinute, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq):
         super().__init__()
 
         sql = """
@@ -60,7 +60,7 @@ Select
         all_tags = list(ev_tags) + list(pv_tags_all)
         self.ev_idx = [k1 for k1 in range(len(ev_tags))]
         self.pv_idx = [k1 + len(ev_tags) for k1 in range(len(pv_tags_all))]
-        self.dataSet = DataSetFromDb.getInstance(dbFilePath=dbFilePath , tags=all_tags, period=period)
+        self.dataSet = DataSetFromDb.getInstance(dbFilePath=dbFilePath , tags=all_tags, period=period, samplingIntervalMinute = samplingIntervalMinute)
         self.Nbatch = Nbatch
         self.Nseq = Nseq
         

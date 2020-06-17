@@ -29,6 +29,7 @@ class Builder001(Builder):
                 , Nseq = 2**3
                 , Nh = 2**5
                 , Nepoch = 2**3
+                , samplingIntervalMinute = 15
                 )
 
             for _ in range(3):
@@ -36,7 +37,7 @@ class Builder001(Builder):
 
         agentConstructParameterNames = ("Nh",)
         environmentConstructParameterNames = [*map(lambda xx: xx.strip(),
-            "dbFilePath, period, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq".split(","))] 
+            "dbFilePath, period, samplingIntervalMinute, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq".split(","))] 
         trainerConstructParameterNames = ("Nepoch",)
         
         for buildOrder in genBuildOrder():

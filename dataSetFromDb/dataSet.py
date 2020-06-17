@@ -9,13 +9,15 @@ class DataSetFromDb():
 
     _uniqueInstance = {}
 
-    def __init__(self, dbFilePath, tags, period):
+    def __init__(self, dbFilePath, tags, period, samplingIntervalMinute):
         # tags = ["PV0001", "PV0002", ...]
         # period = (t0, t1), t0, t1 as datetime
+        # samplingIntervalMinute as int
         
         print("The data will be loaded from the following DB: %s" % dbFilePath
               + "\n with the given tags: %s" % ",".join(tags)
               + "\n with the given period: %s - %s" % (period[0], period[1])
+              + "\n with sampling interval = %s" % samplingIntervalMinute
               )
 
         # This SQL command will extract the dataset with the given tags: "tags"
@@ -30,8 +32,9 @@ Select
         Where d.tag in ({0})
         And timestamp >= ?
         And timestamp < ?
+        And Cast(strftime('%M', timestamp) as int) % {1} == 0
     Order by d.timestamp_id, d.tag
-""".format(",".join(map(lambda xx: '"%s"' % xx, tags)))
+""".format(",".join(map(lambda xx: '"%s"' % xx, tags)), samplingIntervalMinute)
 
         conn = None
         data = None

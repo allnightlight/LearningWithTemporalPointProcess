@@ -24,6 +24,7 @@ class Test(unittest.TestCase):
             , ev_tags = ("EV0004", "EV0006")
             , Nbatch = 2**5
             , Nseq = 2**3
+            , samplingIntervalMinute = 10
             )
         
         factory = EnvironmentFactoryFromDb()
