@@ -13,6 +13,12 @@ def json_date_hook(json_dict):
                 json_dict[key] = datetime.strptime(val, myDatetimeFormat)
             except:
                 pass
+        elif isinstance(val, list):
+            try:
+                json_dict[key] = [*map(lambda xx: datetime.strptime(xx, myDatetimeFormat), val)]
+            except:
+                pass
+            
     return json_dict
 
 def json_converter(obj):
