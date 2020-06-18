@@ -18,14 +18,14 @@ class Evaluator(Loader):
     
     def evaluate(self, filePath):
         
-        def toString(count, prop):
+        def toString(count, prop, segment):
             
-            header="Delta#,Rate.TN,Rate.FP,Rate.FN,Rate.TP,Count.TN,Count.FP,Count.FN,Count.TP"
+            header="Segment,Delta#,Rate.TN,Rate.FP,Rate.FN,Rate.TP,Count.TN,Count.FP,Count.FN,Count.TP"
             
             txt = ""
             nDelta = count.shape[1]
             for k1 in range(nDelta):
-                row = "%d," % k1 \
+                row = "%s,%d," % (segment, k1) \
                     + ",".join(["%.2f" % elm for elm in prop[:,k1]]) \
                     + ","\
                     + ",".join(["%d" % elm for elm in count[:,k1]])\
@@ -36,10 +36,17 @@ class Evaluator(Loader):
 
         txt = ""        
         for agent, environment, _ in self.iterateHistory():
+            Eref, Pv = environment.getTrainData()
+            count, prop = self.evaluateAnAgent(agent, Eref, Pv)
+            rows, header = toString(count, prop, "train")
+            txt += rows
+            
             Eref, Pv = environment.getTestData()
             count, prop = self.evaluateAnAgent(agent, Eref, Pv)
-            rows, header = toString(count, prop)
+            rows, header = toString(count, prop, "test")
             txt += rows
+
+            
         txt = header + "\n" + txt
         
         with open(filePath, "w") as fp:
