@@ -1,8 +1,10 @@
 
-import numpy as np
+from datetime import datetime
 import sqlite3
 import traceback
-import json
+
+import numpy as np
+from util import convertToJson
 
 
 class DataSetFromDb():
@@ -28,6 +30,7 @@ class DataSetFromDb():
         sql = """
 Select 
     d.value
+    , timestamp
     From DataTable d
         Where d.tag in ({0})
         And timestamp >= ?
@@ -41,8 +44,12 @@ Select
         try:
             conn = sqlite3.connect(dbFilePath, detect_types = sqlite3.PARSE_COLNAMES|sqlite3.PARSE_DECLTYPES)
             cur = conn.cursor()
-            cur.execute(sql, period)        
-            data = np.array(cur.fetchall(), dtype=np.float32).reshape(-1, len(tags)) # (nSample, nTag)
+            cur.execute(sql, period)
+            data, timestamp = zip(*cur.fetchall())        
+            data = np.array(data, dtype=np.float32).reshape(-1, len(tags)) # (nSample, nTag)
+            timestamp = np.array([*map(lambda xx: datetime.strptime(xx, "%Y-%m-%d %H:%M:%S"),
+                                       timestamp)]).reshape(-1, len(tags)) # (nSample, nTag)
+            timestamp = timestamp[:,0] # (nSample,)
         except:
             traceback.print_exc()
             data = None
@@ -53,8 +60,9 @@ Select
         assert data is not None, "FAILED TO LOADING DATA FROM THE GIVEN DB: %s" % dbFilePath
         self.data = data
         
-        self.idxAvailable = np.where(~np.any(np.isnan(data), axis=-1))[0] 
-        
+        self.idxAvailable = np.where(~np.any(np.isnan(data), axis=-1))[0] # (*,)
+        self.timestampAvailable = timestamp[self.idxAvailable] #(*,)
+         
         self.nSample = len(self.idxAvailable)
         assert self.nSample > 0, "NO AVAILABLE SAMPLE EXISTS IN THE GIVEN PAIR OF PERIOD AND TAGS."
         
@@ -65,7 +73,7 @@ Select
         
     @classmethod
     def getInstance(cls, **args):        
-        key = json.dumps(args)        
+        key = convertToJson(args)        
         if not key in cls._uniqueInstance:
             cls._uniqueInstance[key] = super().__new__(cls)
             cls._uniqueInstance[key].__init__(**args)
@@ -83,4 +91,6 @@ Select
 
     def getAvailableIndex(self):
         return self.idxAvailable.copy()
-    
+
+    def getAvailableTimestamp(self):
+        return self.timestampAvailable.copy()
