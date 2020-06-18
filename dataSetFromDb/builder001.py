@@ -1,11 +1,13 @@
 
+from datetime import datetime
 import itertools
 
 from adapter import EnvironmentAdapter, AgentAdapter, TrainerAdapter
+from agentGru import AgentFactoryGru
 from builder import Builder
 from environmentFromDb import EnvironmentFactoryFromDb
-from agentGru import AgentFactoryGru
 from trainerMLE import TrainerMLEFactory
+
 
 class Builder001(Builder):
     
@@ -18,7 +20,14 @@ class Builder001(Builder):
            
             buildOrder = dict(         
                 dbFilePath = "testDb.sqlite"
-                , period = ("2020-06-12 17:05:00", "2020-06-13 14:45:00")
+                , period_train = (
+                    datetime.strptime("2020/6/12 17:05", "%Y/%m/%d %H:%M")
+                    , datetime.strptime("2020/6/13 14:45", "%Y/%m/%d %H:%M")
+                    )
+                , period_test= (
+                    datetime.strptime("2020/6/13 17:05", "%Y/%m/%d %H:%M")
+                    , datetime.strptime("2020/6/14 14:45", "%Y/%m/%d %H:%M")
+                    ) 
                 , pv_tags = ("PV0006", "PV0016")
                 , pv_preprocesses = (
                     ("None", "Preprocess0001")
@@ -37,7 +46,7 @@ class Builder001(Builder):
 
         agentConstructParameterNames = ("Nh",)
         environmentConstructParameterNames = [*map(lambda xx: xx.strip(),
-            "dbFilePath, period, samplingIntervalMinute, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq".split(","))] 
+            "dbFilePath, period_train, period_test, samplingIntervalMinute, pv_tags, pv_preprocesses, ev_tags, Nbatch, Nseq".split(","))] 
         trainerConstructParameterNames = ("Nepoch",)
         
         for buildOrder in genBuildOrder():
