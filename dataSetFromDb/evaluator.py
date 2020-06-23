@@ -11,6 +11,12 @@ class Evaluator(Loader):
     '''
     classdocs
     '''
+    
+    
+    def __init__(self, history, agentFactory, environmentFactory, trainerFactory, nTol):
+        super(Evaluator, self).__init__(history, agentFactory, environmentFactory, trainerFactory)
+        
+        self.nTol = nTol
         
     def iterateTrainId(self):
         for trainerId in [1,2,3]:
@@ -37,12 +43,12 @@ class Evaluator(Loader):
         txt = ""        
         for agent, environment, _ in self.iterateHistory():
             Eref, Pv = environment.getTrainData()
-            count, prop = self.evaluateAnAgent(agent, Eref, Pv)
+            count, prop = self.evaluateAnAgent(agent, Eref, Pv, self.nTol)
             rows, header = toString(count, prop, "train")
             txt += rows
             
             Eref, Pv = environment.getTestData()
-            count, prop = self.evaluateAnAgent(agent, Eref, Pv)
+            count, prop = self.evaluateAnAgent(agent, Eref, Pv, self.nTol)
             rows, header = toString(count, prop, "test")
             txt += rows
 
@@ -54,7 +60,7 @@ class Evaluator(Loader):
             
     
     @classmethod
-    def evaluateAnAgent(cls, agent, Eref, Pv):
+    def evaluateAnAgent(cls, agent, Eref, Pv, nTol):
         # Eref: (nSeq, *, nDelta)
         # Pv: (nSeq, *, nPv)
         
@@ -66,29 +72,33 @@ class Evaluator(Loader):
         Eest = np.zeros(Phat.shape) # (nSeq, *, nDelta)
         Eest[Phat > 0.5] = 1.0
         
-        count, prop = cls.countFpAndFn(Eref[-1,...], Eest[-1,...])
+        count, prop = cls.countFpAndFn(Eref[-1,...], Eest[-1,...], nTol)
         
         return count, prop
         
     
     @classmethod
-    def countFpAndFn(cls, Eref, Eest):
+    def countFpAndFn(cls, Eref, Eest, nTol):
         # Eest, Eref: (*, nDelta), in {0,1}        
         # count: (4, nDelta), (TN, FP, FN, TP)
         # prop: (4, nDelta)
         
         assert Eref.shape == Eest.shape
-        nDelta = Eref.shape[1]
+        nSample, nDelta = Eref.shape
         
         count = np.zeros((4, nDelta))
         rate = np.zeros((4, nDelta)) 
         
+        ErefBlurred = Eref[:nSample-nTol,:]
+        for k1 in range(nTol):
+            ErefBlurred = np.nanmax(np.stack((ErefBlurred, Eref[(k1+1):(nSample-nTol+k1+1),:]), axis=0), axis=0) #  (nSample-nTol, nDelta)
+        
         for k1 in range(nDelta):
-            idxValid = ~(np.isnan(Eref[:,k1]) | np.isnan(Eest[:,k1]))
-            count[0,k1] = np.sum((Eref[idxValid,k1] == 0) & (Eest[idxValid,k1] == 0)) # true negative
-            count[1,k1] = np.sum((Eref[idxValid,k1] == 0) & (Eest[idxValid,k1] == 1)) # false positive
-            count[2,k1] = np.sum((Eref[idxValid,k1] == 1) & (Eest[idxValid,k1] == 0)) # false negative
-            count[3,k1] = np.sum((Eref[idxValid,k1] == 1) & (Eest[idxValid,k1] == 1)) # true positive
+            idxValid = ~(np.isnan(ErefBlurred[:,k1]) | np.isnan(Eest[:nSample - nTol,k1]))
+            count[0,k1] = np.sum((ErefBlurred[idxValid,k1] == 0) & (Eest[:nSample - nTol,:][idxValid,k1] == 0)) # true negative
+            count[1,k1] = np.sum((ErefBlurred[idxValid,k1] == 0) & (Eest[:nSample - nTol,:][idxValid,k1] == 1)) # false positive
+            count[2,k1] = np.sum((ErefBlurred[idxValid,k1] == 1) & (Eest[:nSample - nTol,:][idxValid,k1] == 0)) # false negative
+            count[3,k1] = np.sum((ErefBlurred[idxValid,k1] == 1) & (Eest[:nSample - nTol,:][idxValid,k1] == 1)) # true positive
             
         rate[0:2,:] = count[0:2,:]/(count[0,:] + count[1,:] + 1e-16)
         rate[2:4,:] = count[2:4,:]/(count[2,:] + count[3,:] + 1e-16) 
